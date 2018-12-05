@@ -7,7 +7,8 @@ class Form extends Component {
     constructor(props) {
         super(props);
         this.state = {value: '',
-        list: ''};
+        list: '',
+        lastDomain: ''};
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
@@ -21,8 +22,7 @@ class Form extends Component {
         let domain = 'http://localhost:3001/getads/' + this.state.value;
         axios.get(domain)
             .then(response => {
-                this.setState({list: response.data});
-                console.log(this.state.list);
+                this.setState({list: response.data, lastDomain: this.state.value});
             })
             .catch(error => {
                 console.log(error);
@@ -44,7 +44,7 @@ class Form extends Component {
                         </label>
                         <input type="submit" value="Submit" />
                     </form>
-                    <WithStyles toTable = {this.state.list} />
+                    <WithStyles toTable = {this.state.list} domainName = {this.state.lastDomain}/>
                 </header>
             </div>
         );

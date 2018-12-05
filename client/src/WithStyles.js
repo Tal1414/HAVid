@@ -30,6 +30,7 @@ function createData(domain, value) {
 
 function SimpleTable(props) {
     const { classes } = props;
+    const name = props.domainName;
     const data = props.toTable;
     const rows = [];
     for (let i=0;i<data.length; i++) {
@@ -38,6 +39,7 @@ function SimpleTable(props) {
     if (data) {
         return (
             <Paper className={classes.root}>
+                <h1> {name} "Ads.txt" Results:</h1>
                 <Table className={classes.table} style={{width: 400, margin: 'auto'}}>
                     <TableHead>
                         <TableRow align={'center'}>
@@ -62,7 +64,7 @@ function SimpleTable(props) {
         );
     } else {
         return(
-            <p>"Waiting for submit"</p>
+            <p>No data yet</p>
         );
     }
 }
