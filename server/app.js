@@ -33,9 +33,15 @@ app.use('/getads/:domain', function(req, res, next) {
   console.log(req.params.domain);
   let toFetch = "http://www." + req.params.domain + "/ads.txt";
   getAds(toFetch).then(function (resp) {
-    let data = resp.split("\n");
-    let readyData = parseData(data);
-    res.send(Array.from(readyData));
+    if (isNaN(resp)) {
+      let data = resp.split("\n");
+      let readyData = parseData(data);
+      let dataToArray = Array.from(readyData);
+      let sortedArray = dataToArray.sort(sortFunction)
+      res.send(sortedArray);
+    } else {
+      res.send(null);
+    }
   });
 });
 
@@ -44,6 +50,9 @@ async function getAds(address) {
     return res.data;
   }).then(function (data) {
     return data;
+  }).catch(function (error) {
+    console.log(error.response.status);
+    return error.response.status;
   });
   return response;
 }
@@ -73,7 +82,20 @@ function parseData(data){
       domainsMap.set(domain, domainsMap.get(domain) + 1);
   }
 
+  if (domainsMap.get("")){
+    domainsMap.delete("");
+  }
+
   return domainsMap;
+}
+
+function sortFunction(a, b) {
+  if (a[1] === b[1]) {
+    return 0;
+  }
+  else {
+    return (a[1] > b[1]) ? -1 : 1;
+  }
 }
 
 // catch 404 and forward to error handler

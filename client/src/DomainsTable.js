@@ -16,7 +16,7 @@ const styles = theme => ({
         overflowX: 'auto',
     },
     table: {
-        minWidth: 500,
+        minWidth: '600',
     },
     
 });
@@ -33,10 +33,12 @@ function SimpleTable(props) {
     const name = props.domainName;
     const data = props.toTable;
     const rows = [];
-    for (let i=0;i<data.length; i++) {
-        rows.push(createData(data[i][0], data[i][1]));
-    }
     if (data) {
+        for (let i=0;i<data.length; i++) {
+            rows.push(createData(data[i][0], data[i][1]));
+        }
+    }
+    if (data !== 404 && data) {
         return (
             <Paper className={classes.root}>
                 <h1> {name} "Ads.txt" Results:</h1>
@@ -62,9 +64,16 @@ function SimpleTable(props) {
                 </Table>
             </Paper>
         );
+    } else if (data === 404){
+        return(
+            <div>
+            <h1>Error!</h1>
+            <h2>please check the domain you entered, it may not have an "ads.txt"</h2>
+            </div>
+        );
     } else {
         return(
-            <p>No data yet</p>
+            <h2>No data yet</h2>
         );
     }
 }

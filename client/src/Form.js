@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import axios from 'axios';
-import WithStyles from './WithStyles';
+import DomainsTable from './DomainsTable';
 
 class Form extends Component {
 
@@ -22,7 +22,11 @@ class Form extends Component {
         let domain = 'http://localhost:3001/getads/' + this.state.value;
         axios.get(domain)
             .then(response => {
-                this.setState({list: response.data, lastDomain: this.state.value});
+                if (response.data) {
+                    this.setState({list: response.data, lastDomain: this.state.value});
+                } else {
+                    this.setState({list: 404, lastDomain: this.state.value});
+                }
             })
             .catch(error => {
                 console.log(error);
@@ -44,7 +48,7 @@ class Form extends Component {
                         </label>
                         <input type="submit" value="Submit" />
                     </form>
-                    <WithStyles toTable = {this.state.list} domainName = {this.state.lastDomain}/>
+                    <DomainsTable toTable = {this.state.list} domainName = {this.state.lastDomain}/>
                 </header>
             </div>
         );
