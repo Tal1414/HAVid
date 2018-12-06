@@ -29,7 +29,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', index);
 
 
-app.use('/getads/:domain', function(req, res, next) {
+app.use('/getads/:domain/:sortBy', function(req, res, next) {
   console.log(req.params.domain);
   let toFetch = "http://www." + req.params.domain + "/ads.txt";
   getAds(toFetch).then(function (resp) {
@@ -37,8 +37,13 @@ app.use('/getads/:domain', function(req, res, next) {
       let data = resp.split("\n");
       let readyData = parseData(data);
       let dataToArray = Array.from(readyData);
-      let sortedArray = dataToArray.sort(sortFunction)
-      res.send(sortedArray);
+      console.log(req.params.sortBy);
+      if (req.params.sortBy === '1'){
+        dataToArray.sort(sortFunctionD);
+      } else if (req.params.sortBy === '2'){
+        dataToArray.sort(sortFunctionA);
+      }
+      res.send(dataToArray);
     } else {
       res.send(null);
     }
@@ -89,12 +94,21 @@ function parseData(data){
   return domainsMap;
 }
 
-function sortFunction(a, b) {
+function sortFunctionD(a, b) {
   if (a[1] === b[1]) {
     return 0;
   }
   else {
     return (a[1] > b[1]) ? -1 : 1;
+  }
+}
+
+function sortFunctionA(a, b) {
+  if (a[1] === b[1]) {
+    return 0;
+  }
+  else {
+    return (a[1] < b[1]) ? -1 : 1;
   }
 }
 
