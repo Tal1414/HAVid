@@ -7,7 +7,7 @@ class Form extends Component {
     constructor(props) {
         super(props);
         this.state = {value: '',
-            sortBy: '',
+            sortBy: '1',
             list: '',
             lastDomain: ''};
 
