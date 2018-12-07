@@ -1,13 +1,13 @@
 .App {
-  text-align: center;
+    text-align: center;
 }
 
 
 .AppBar {
-  color: #000000;
-  position: static;
-  text-align: left;
-  max-width: 80%;
-  margin: auto auto;
-  border-radius:3px;
+    color: #000000;
+    position: static;
+    text-align: left;
+    max-width: 80%;
+    margin: auto auto;
+    border-radius: 3px;
 }

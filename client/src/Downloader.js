@@ -10,9 +10,8 @@ class Downloader extends React.Component {
     };
 
 
-
     handleClick = event => {
-        this.setState({ anchor: event.currentTarget });
+        this.setState({anchor: event.currentTarget});
     };
 
     handleClose = (event) => {
@@ -37,17 +36,17 @@ class Downloader extends React.Component {
     };
 
     //download the list the chosen format
-     download(data, format) {
+    download(data, format) {
         let downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", data);
-        downloadAnchorNode.setAttribute("download", "data."+format);
+        downloadAnchorNode.setAttribute("download", "data." + format);
         document.body.appendChild(downloadAnchorNode); // required for firefox
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
     }
 
     render() {
-        const { anchor } = this.state;
+        const {anchor} = this.state;
 
         return (
             <div>
