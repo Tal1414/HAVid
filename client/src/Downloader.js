@@ -23,6 +23,7 @@ class Downloader extends React.Component {
                 let data = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(this.props.data));
                 this.download(data, 'json');
             } else {
+                //convert from JSON to CSV
                 let data = "data:text/csv;charset=utf-8,";
                 this.props.data.forEach(function (rowArray) {
                     let row = rowArray.join(",");
@@ -35,6 +36,7 @@ class Downloader extends React.Component {
         }
     };
 
+    //download the list the chosen format
      download(data, format) {
         let downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", data);
