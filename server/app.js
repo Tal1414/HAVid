@@ -1,14 +1,13 @@
 var express = require('express');
 var path = require('path');
-var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 var axios = require('axios');
 var cors = require('cors');
+var cache = require('memory-cache');
 
 var index = require('./routes/index');
-var users = require('./routes/users');
 
 var app = express();
 
@@ -16,6 +15,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
 
+//without cors I can't send requests from the same ip to other ports.
 app.use(cors());
 
 // uncomment after placing your favicon in /public
@@ -28,41 +28,72 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', index);
 
+//last modified values of each domain, in order to help us work with the cache.
+let cacheLastModified = [];
 
 app.use('/getads/:domain/:sortBy', function(req, res, next) {
   console.log(req.params.domain);
   let toFetch = "http://www." + req.params.domain + "/ads.txt";
+
   getAds(toFetch).then(function (resp) {
+    //if resp is not a number, we got the data. else we have an error/data already in cache
     if (isNaN(resp)) {
       let data = resp.split("\n");
       let readyData = parseData(data);
       let dataToArray = Array.from(readyData);
-      console.log(req.params.sortBy);
+      //put the data we got into the cache.
+      cache.put(toFetch, dataToArray);
+      //1 sort by descending order, 2 ascending.
       if (req.params.sortBy === '1'){
         dataToArray.sort(sortFunctionD);
       } else if (req.params.sortBy === '2'){
         dataToArray.sort(sortFunctionA);
       }
       res.send(dataToArray);
+      //we already have the correct data in cache.
+    } else if (resp === 304) {
+      if (req.params.sortBy === '1'){
+        res.send(cache.get(toFetch).sort(sortFunctionD));
+      } else if (req.params.sortBy === '2'){
+        res.send(cache.get(toFetch).sort(sortFunctionA));
+      }
     } else {
-      res.send(null);
+      res.sendStatus(resp);
     }
   });
 });
 
 async function getAds(address) {
-  const response = await axios.get(address).then(function (res) {
+  //we add an header to the request in order to save time if the last-modified hasn't changed and
+  //we have the data in cache.
+
+  let config;
+  if (cacheLastModified[address]) {
+    config = {
+      headers: {
+        'If-Modified-Since': cacheLastModified[address],
+      },
+        timeout: 1000
+      };
+  } else { config = null; }
+
+  const response = await axios.get(address, config).then(function (res) {
+    //update the last-modified for the specific address
+    cacheLastModified[address] = res.headers['last-modified'];
     return res.data;
-  }).then(function (data) {
-    return data;
   }).catch(function (error) {
-    console.log(error.response.status);
-    return error.response.status;
+    if(error.response){
+      return error.response.status;
+    } else {
+      return 400;
+    }
   });
   return response;
 }
 
+
 function parseData(data){
+  //filter only the lines with valid addresses (it has letters, then a dot (exactly one!) and again letters.
   let newArray = data.filter(function (line) {
     return /^[^#]([A-Za-z])+.{1}[A-Za-z]+/.test(line);
     });
@@ -70,23 +101,25 @@ function parseData(data){
   let domainsMap = new Map();
   let set = new Set();
 
+  //add every domain to a set, in order to know how many different addresses we have
   for (let i=0; i<newArray.length; i++) {
     let domain = newArray[i].substring(0, newArray[i].indexOf(','));
+    //removing any spaces
     domain = domain.replace(/\s/g, '');
     set.add(domain);
   }
-
+  //initialize the map object - counter will start as 0.
   set.forEach(function (key) {
     domainsMap.set(key, 0);
   });
 
-
+  //counting
   for (let i=0; i<newArray.length; i++) {
     let domain = newArray[i].substring(0, newArray[i].indexOf(','));
       domain = domain.replace(/\s/g, '');
       domainsMap.set(domain, domainsMap.get(domain) + 1);
   }
-
+  //delete any empty key
   if (domainsMap.get("")){
     domainsMap.delete("");
   }
@@ -94,6 +127,7 @@ function parseData(data){
   return domainsMap;
 }
 
+//sort by descending order
 function sortFunctionD(a, b) {
   if (a[1] === b[1]) {
     return 0;
@@ -103,6 +137,7 @@ function sortFunctionD(a, b) {
   }
 }
 
+//sort by ascending order
 function sortFunctionA(a, b) {
   if (a[1] === b[1]) {
     return 0;

@@ -7,6 +7,8 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Downloader from "./Downloader";
 
 const styles = theme => ({
     root: {
@@ -38,8 +40,10 @@ function SimpleTable(props) {
             rows.push(createData(data[i][0], data[i][1]));
         }
     }
-    if (data !== 404 && data) {
+    if (data !== 404 && data !== 400 && data && data !== 'loading') {
         return (
+            <div>
+                <Downloader data={data}/>
             <Paper className={classes.root}>
                 <h1> {name} "Ads.txt" Results:</h1>
                 <Table className={classes.table} style={{width: 400, margin: 'auto'}}>
@@ -63,6 +67,7 @@ function SimpleTable(props) {
                     </TableBody>
                 </Table>
             </Paper>
+            </div>
         );
     } else if (data === 404){
         return(
@@ -71,9 +76,22 @@ function SimpleTable(props) {
             <h2>please check the domain you entered, it may not have an "ads.txt"</h2>
             </div>
         );
+    } else if (data === 400) {
+        return(
+            <div>
+            <h1>Error!</h1>
+            <h2>please enter a valid domain</h2>
+        </div>
+        );
+    } else if (data === 'loading') {
+        return(
+            <div>
+                <CircularProgress />
+            </div>
+        );
     } else {
         return(
-            <h2>No data yet</h2>
+            <h2>Waiting for submit</h2>
         );
     }
 }
