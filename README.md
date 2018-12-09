@@ -15,8 +15,15 @@ npm install
 ## How to Start
 
 please use in on both directories - server and client (as the install part)
+open 2 shells, then:
 
 ```
+cd server
+npm start
+```
+
+```
+cd client
 npm start
 ```
 
