@@ -23,5 +23,6 @@ npm start
 
 ## How to Use
 
+Go to http://localhost:3000.
 Enter a domain, choose a sorting method, click "Go!" and wait for reply.
 You can download the results as JSON or CSV by clicking "EXPORT AS"
