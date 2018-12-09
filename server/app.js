@@ -1,22 +1,21 @@
-var express = require('express');
-var path = require('path');
-var logger = require('morgan');
-var cookieParser = require('cookie-parser');
-var bodyParser = require('body-parser');
-var axios = require('axios');
-var cors = require('cors');
-var cache = require('memory-cache');
+let express = require('express');
+let path = require('path');
+let logger = require('morgan');
+let cookieParser = require('cookie-parser');
+let bodyParser = require('body-parser');
+let axios = require('axios');
+let cors = require('cors');
+let cache = require('memory-cache');
 
-var index = require('./routes/index');
 
-var app = express();
+let app = express();
+
+//without cors I can't send requests from the same ip to other ports.
+app.use(cors());
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'jade');
-
-//without cors I can't send requests from the same ip to other ports.
-app.use(cors());
 
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
@@ -26,13 +25,10 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-
 //last modified values of each domain, in order to help us work with the cache.
 let cacheLastModified = [];
 
-app.use('/getads/:domain/:sortBy', function (req, res, next) {
-    console.log(req.params.domain);
+app.use('/getinfo/:domain/:sortingOptions', function (req, res, next) {
     let toFetch = "http://www." + req.params.domain + "/ads.txt";
 
     getAds(toFetch).then(function (resp) {
@@ -44,17 +40,17 @@ app.use('/getads/:domain/:sortBy', function (req, res, next) {
             //put the data we got into the cache.
             cache.put(toFetch, dataToArray);
             //1 sort by descending order, 2 ascending.
-            if (req.params.sortBy === '1') {
+            if (req.params.sortingOptions === 'Descending') {
                 dataToArray.sort(sortFunctionD);
-            } else if (req.params.sortBy === '2') {
+            } else if (req.params.sortingOptions === 'Ascending') {
                 dataToArray.sort(sortFunctionA);
             }
             res.send(dataToArray);
             //we already have the correct data in cache.
         } else if (resp === 304) {
-            if (req.params.sortBy === '1') {
+            if (req.params.sortingOptions === 'Descending') {
                 res.send(cache.get(toFetch).sort(sortFunctionD));
-            } else if (req.params.sortBy === '2') {
+            } else if (req.params.sortingOptions === 'Ascending') {
                 res.send(cache.get(toFetch).sort(sortFunctionA));
             }
         } else {
@@ -149,7 +145,7 @@ function sortFunctionA(a, b) {
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
-    var err = new Error('Not Found');
+    let err = new Error('Not Found');
     err.status = 404;
     next(err);
 });
@@ -162,7 +158,7 @@ app.use(function (err, req, res, next) {
 
     // render the error page
     res.status(err.status || 500);
-    res.render('error');
+    res.send(err);
 });
 
 module.exports = app;

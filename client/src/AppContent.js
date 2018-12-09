@@ -4,15 +4,15 @@ import DomainsTable from './DomainsTable';
 import Input from '@material-ui/core/Input';
 import Button from '@material-ui/core/Button';
 import Radio from '@material-ui/core/Radio';
-import './Form.css';
+import './AppContent.css';
 
-class Form extends Component {
+class AppContent extends Component {
 
     constructor(props) {
         super(props);
         this.state = {
             value: '',
-            sortBy: '1',
+            sortingOptions: 'Descending',
             list: '',
             lastDomain: ''
         };
@@ -27,18 +27,22 @@ class Form extends Component {
     }
 
     handleRadio(event) {
-        this.setState({sortBy: event.target.value});
+        this.setState({sortingOptions: event.target.value});
     }
 
     handleSubmit(event) {
         this.setState({list: 'loading'});
-        let domain = 'http://localhost:3001/getads/' + this.state.value + '/' + this.state.sortBy;
+        let domain = 'http://localhost:3001/getinfo/' + this.state.value + '/' + this.state.sortingOptions;
         axios.get(domain)
             .then(response => {
                 this.setState({list: response.data, lastDomain: this.state.value});
             })
             .catch(error => {
-                this.setState({list: error.response.status, lastDomain: this.state.value});
+                if (error.response) {
+                    this.setState({list: error.response.status, lastDomain: this.state.value});
+                } else {
+                    this.setState({list: error, lastDomain: this.state.value});
+                }
             });
         event.preventDefault();
     }
@@ -46,39 +50,39 @@ class Form extends Component {
     render() {
         return (
             <div className="Form">
-                <header className="Form-header">
+                <div className="Form-header">
                     <p>
                         Please enter a domain to get Ads.txt information:
                     </p>
                     <form onSubmit={this.handleSubmit}>
+                        <div className='inputText'>
                         <label>
                             <Input value={this.state.value} onChange={this.handleChange}/>
                         </label>
-                        <br/> <br/>
+                        </div>
                         Sort by: (number of appearances)
-                        <br/>
+                        <div className='radioBtns'>
                         <label>
-                            <Radio color='black' value="1" checked={this.state.sortBy === '1'}
+                            <Radio color='primary' value="Descending" checked={this.state.sortingOptions === 'Descending'}
                                    onChange={this.handleRadio}/>
                             Descending
                         </label>
                         <label>
-                            <Radio color='black' value="2" checked={this.state.sortBy === '2'}
+                            <Radio color='primary' value="Ascending" checked={this.state.sortingOptions === 'Ascending'}
                                    onChange={this.handleRadio}/>
                             Ascending
                         </label>
-                        <br/> <br/>
+                        </div>
                         <Button type="submit" variant="contained"><b>Go!</b></Button>
                     </form>
-                    <br/>
                     <div className='table'>
                         <hr/>
                         <DomainsTable toTable={this.state.list} domainName={this.state.lastDomain}/>
                     </div>
-                </header>
+                </div>
             </div>
         );
     }
 }
 
-export default Form;
+export default AppContent;

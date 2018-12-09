@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import './App.css';
-import Form from "./Form";
+import AppContent from "./AppContent";
 import AppBar from '@material-ui/core/AppBar';
 
 class App extends Component {
@@ -12,8 +12,9 @@ class App extends Component {
                         Domain's Ads
                     </AppBar>
                 </div>
-                <br/>
-                <Form/>
+                <div>
+                <AppContent/>
+                </div>
             </div>
         );
     }
