@@ -12,7 +12,7 @@ class AppContent extends Component {
         super(props);
         this.state = {
             value: '',
-            sortingOptions: 'Descending',
+            sortingOptions: 'vDescending',
             list: '',
             lastDomain: ''
         };
@@ -32,7 +32,7 @@ class AppContent extends Component {
 
     handleSubmit(event) {
         this.setState({list: 'loading'});
-        let domain = 'http://localhost:3001/getinfo/' + this.state.value + '/' + this.state.sortingOptions;
+        let domain = 'http://localhost:3001/getinfo/' + this.state.value;
         axios.get(domain)
             .then(response => {
                 this.setState({list: response.data, lastDomain: this.state.value});
@@ -60,24 +60,34 @@ class AppContent extends Component {
                             <Input value={this.state.value} onChange={this.handleChange}/>
                         </label>
                         </div>
-                        Sort by: (number of appearances)
+                        Sort by:
                         <div className='radioBtns'>
                         <label>
-                            <Radio color='primary' value="Descending" checked={this.state.sortingOptions === 'Descending'}
+                            <Radio color='primary' value="vDescending" checked={this.state.sortingOptions === 'vDescending'}
                                    onChange={this.handleRadio}/>
-                            Descending
+                            Descending(value)
                         </label>
                         <label>
-                            <Radio color='primary' value="Ascending" checked={this.state.sortingOptions === 'Ascending'}
+                            <Radio color='primary' value="vAscending" checked={this.state.sortingOptions === 'vAscending'}
                                    onChange={this.handleRadio}/>
-                            Ascending
+                            Ascending(value)
                         </label>
+                            <label>
+                                <Radio color='primary' value="dDescending" checked={this.state.sortingOptions === 'dDescending'}
+                                       onChange={this.handleRadio}/>
+                                Descending(domain)
+                            </label>
+                            <label>
+                                <Radio color='primary' value="dAscending" checked={this.state.sortingOptions === 'dAscending'}
+                                       onChange={this.handleRadio}/>
+                                Ascending(domain)
+                            </label>
                         </div>
                         <Button type="submit" variant="contained"><b>Go!</b></Button>
                     </form>
                     <div className='table'>
                         <hr/>
-                        <DomainsTable toTable={this.state.list} domainName={this.state.lastDomain}/>
+                        <DomainsTable toTable={this.state.list} domainName={this.state.lastDomain} sortBy={this.state.sortingOptions}/>
                     </div>
                 </div>
             </div>

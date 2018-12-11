@@ -30,15 +30,70 @@ function createData(domain, value) {
     return {id, domain, value};
 }
 
+function sort(data, sortBy) {
+    let new_arr = [].concat(data);
+    if (sortBy === 'vDescending') {
+        new_arr.sort(sortFunctionvD);
+    } else if(sortBy === 'vAscending'){
+        new_arr.sort(sortFunctionvA);
+    } else if (sortBy === 'dDescending'){
+        new_arr.sort(sortFunctiondD);
+    } else {
+        new_arr.sort(sortFunctiondA);
+    }
+
+    return new_arr;
+}
+
+//sort by value, descending order
+function sortFunctionvD(a, b) {
+    if (a[1] === b[1]) {
+        return 0;
+    } else {
+        return (a[1] > b[1]) ? -1 : 1;
+    }
+}
+
+//sort by value, ascending order
+function sortFunctionvA(a, b) {
+    if (a[1] === b[1]) {
+        return 0;
+    } else {
+        return (a[1] < b[1]) ? -1 : 1;
+    }
+}
+
+//sort by value, descending order
+function sortFunctiondD(a, b) {
+    if (a[0] === b[0]) {
+        return 0;
+    } else {
+        return (a[0] > b[0]) ? -1 : 1;
+    }
+}
+
+//sort by value, ascending order
+function sortFunctiondA(a, b) {
+    if (a[0] === b[0]) {
+        return 0;
+    } else {
+        return (a[0] < b[0]) ? -1 : 1;
+    }
+}
+
+
 
 function SimpleTable(props) {
     const {classes} = props;
     const name = props.domainName;
     const data = props.toTable;
+    const sortBy = props.sortBy;
     const rows = [];
-    if (data) {
-        for (let i = 0; i < data.length; i++) {
-            rows.push(createData(data[i][0], data[i][1]));
+    const new_data = sort(data, sortBy);
+
+    if (new_data) {
+        for (let i = 0; i < new_data.length; i++) {
+            rows.push(createData(new_data[i][0], new_data[i][1]));
         }
     }
     if (data !== 404 && data !== 400 && data && data !== 'loading') {
